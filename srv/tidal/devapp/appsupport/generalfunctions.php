@@ -187,11 +187,38 @@ function cryptservice( $string, $action = 'e', $usedbkey = false, $passedsid = "
     return $output;
 }
 
+function shuffle_assoc($list) {
+    /* From: https://secure.php.net/manual/en/function.shuffle.php */
+  if (!is_array($list)) return $list;
 
+  $keys = array_keys($list);
+  shuffle($keys);
+  $random = array();
+  foreach ($keys as $key)
+    $random[$key] = $list[$key];
+
+  return $random;
+} 
 
 /*
  * 
- 
+
+function parseHeaders( $headers ) {
+    $head = array();
+    foreach( $headers as $k=>$v )  {
+        $t = explode( ':', $v, 2 );
+        if ( isset( $t[1] ) ) {
+            $head[ trim($t[0]) ] = trim( $t[1] );
+        } else {
+            $head[] = $v;
+            if( preg_match( "#HTTP/[0-9\.]+\s+([0-9]+)#",$v, $out ) ) {
+                $head['reponse_code'] = intval($out[1]);
+            }
+        }
+    }
+    return $head;
+}
+
 function checkCURL() {
    if  (in_array  ('curl', get_loaded_extensions())) {
         return "CURL is available on your web server";

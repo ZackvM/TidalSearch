@@ -31,7 +31,8 @@ function modalbackbuilder($whichpage) {
 }
 
 function modaldialogbuilder($whichpage) {
-  $thisModDialog = "<div id=standardModalDialog></div>";
+  $innerDialog = dialoggenerator($whichpage);
+  $thisModDialog = "<div id=standardModalDialog>{$innerDialog}</div>";
   return $thisModDialog;
 }    
 
@@ -42,14 +43,56 @@ function menubuilder($whichpage) {
 
 }
 
-function menugetter($whichpage) { 
-   
+function dialoggenerator($whichpage) { 
+
     switch($whichpage) { 
-      case 'home': 
-          $rtnthis = "HOME MENU";
-      break;
+      case 'search':
+          $rtnthis = <<<DIALOGGEN
+
+<table border=0 id=waitDialog>
+<tr>
+  <td id=advisory>This function will now search multiple datasources for your query criteria.  While this could take up to a minute to complete - in most cases it will be completed in less than 20 seconds.  Please be patient.</td></tr>
+<tr>
+  <td><div id=timerDsp></div></td></tr>
+</table>
+
+DIALOGGEN;
+          break;
       default: 
-         $rtnthis = "DEFAULT MENU GOES HERE";
+          $rtnthis = <<<DIALOGGEN
+
+DIALOGGEN;
+    }
+    return $rtnthis;
+}
+
+function menugetter($whichpage) { 
+
+    $atree = applicationTree; 
+    $thinLogo = base64file("{$atree}/objects/graphics/chtnlogowhite.png","topBarLogo","png",true); 
+
+    switch($whichpage) { 
+      case 'uniquepage':
+          $rtnthis = "SEARCH MENU";
+          break;
+      default: 
+          $rtnthis = <<<MENUPAGE
+<table border=0 id=tblMenuHolder>
+  <tr>
+    <td>{$thinLogo}</td>
+    <td valign=bottom align=right>
+       <table border=0 id=dspMenu>
+         <tr>
+           <td class=menuItem>Home</td>
+           <td class=menuItem>Search</td>
+           <td class=menuItem>Contact CHTN</td>
+           <td class=menuItem>About Search</td>
+         </tr>
+       </table>
+    </td>
+  </tr>
+</table>
+MENUPAGE;
     }
     return $rtnthis;
 }

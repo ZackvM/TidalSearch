@@ -159,7 +159,10 @@ $sp = "\"{$rqstArr['SpecimenCategory']}\"";
 $result = array(); 
 $mh = curl_multi_init(); 
 $srvcCnt = 1;
-foreach ($data as $key => $value) { 
+foreach ($data as $key => $value) {
+
+  //TODO:ERROR CHECK-MAKE SURE ENDPOINT SERVICE IS AVAILABLE BEFORE ADDING TO THE CURL_MULTI 
+    
   $rqstStr = $value['samplebody']; 
   $rplc = array("#PRPLIST#","#SITE#","#DX#","#SPECCAT#","#PAGE#"); 
   $wth  = array(json_encode($prpListing),$st,$dx,strtoupper($sp),0);

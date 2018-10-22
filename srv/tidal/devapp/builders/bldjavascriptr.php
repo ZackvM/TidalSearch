@@ -127,6 +127,13 @@ function search($rqststr) {
 
     $rtnthis = <<<JAVASCR
 
+String.prototype.lpad = function(padString, length) {
+    var str = this;
+    while (str.length < length)
+        str = padString + str;
+    return str;
+}
+
 function sendRequest(url, requestedmethod,  passdata) {  
   var publicusr = "publicuser-{$publicusr}";
   var usrident = "{$publicusrpw}";
@@ -138,7 +145,9 @@ function answerrequest(rsp) {
   var ansTxt = JSON.parse(ansRsp['responseText']);
   if (ansRsp['responseCode'] === 200) { 
     navigateSite('search-results/'+ansTxt['DATA']);
-  } else { 
+  } else {
+    byId('standardModalBacker').style.display = 'none';
+    byId('standardModalDialog').style.display = 'none';
     alert(ansTxt['MESSAGE']);    
   }
 }
@@ -146,14 +155,43 @@ function answerrequest(rsp) {
 document.addEventListener('DOMContentLoaded', function() {  
 
 if (byId('btnRequest')) { 
-   byId('btnRequest').addEventListener('click', function() { 
+   byId('btnRequest').addEventListener('click', function() {
+
+
+     if (byId('standardModalBacker')) { 
+       byId('standardModalBacker').style.display = 'block';
+         if (byId('standardModalDialog')) { 
+           byId('standardModalDialog').style.display = 'block';
+           //TIMER GOES HERE
+           initClock();
+         }
+     }
      var rsp = sendRequest('https://dev.chtn.science/data-service/submit-search','POST',buildRequest());
    }, false); 
 }
 
 }, false);
 
-function buildRequest() { 
+var milliseconds   = 0; 
+var displaySeconds = 0;
+function updateClock() {
+  if (byId('timerDsp')) {
+    milliseconds++;
+    if (milliseconds > 9) { 
+      displaySeconds++;
+      milliseconds = 0;
+    }
+    byId('timerDsp').innerHTML = displaySeconds.toString().lpad("0",2) + ":" + milliseconds;    
+  }
+}
+
+function initClock() {
+   milliseconds = 0
+   displaySeconds = 0;
+   var clocktimer = window.setInterval("updateClock()",100);
+}
+
+function buildRequest() {
   var dta = new Object();
   document.querySelectorAll('*').forEach(function(node) {
     if (node.id.substr(0,3) === 'fld') {  
