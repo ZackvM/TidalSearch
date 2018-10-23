@@ -111,7 +111,6 @@ body { margin: 0; box-sizing: border-box; padding: 7vh 10vw 0 10vw; }
 #bsDisplayTbl tbody td {padding: .5vh .3vw .5vh .3vw; }
 #bsDisplayTbl tfoot {background: rgba({$this->color_zackgrey},1); color: rgba({$this->color_white},1); }
 #bsDisplayTbl tfoot td {padding: .5vh .3vw .5vh .3vw; }
-
 #errorMessage {font-size: 3vh; text-align: center; color: rgba({$this->zackgrey},1); padding: 15vh 0 15vh 0; }
 #errorMessage a:link { color: red; }
 #errorMessage a:visited {color: green;}
@@ -119,6 +118,14 @@ body { margin: 0; box-sizing: border-box; padding: 7vh 10vw 0 10vw; }
 #errorMessage a:active { color: blue; }
 
 #successMessage {font-size: 1.6vh; text-align: justify; padding: 3vh 0 3vh 0; }
+
+#standardModalDialog { border: 8px solid rgba({$this->color_lightgrey},1); width: 30vw; height: 18vh; z-index: 101; position: fixed; margin-top: -10vh; top: 50%; margin-left: -15vw; left: 50%;display: none; box-sizing: border-box; background: rgba({$this->color_white},1); }
+
+#noInfoTbl { width: 100%; height: 100%; border-collapse: collapse;  }
+#noInfoTbl #titleline { font-size: 1.2vh; font-weight: bold; color: rgba({$this->color_white},1); height: 1vh; background: rgba({$this->color_zackgrey},1); padding: 2px;  }
+#noInfoTbl #closeBtn {width: 1vw;  color: rgba({$this->color_white},1); height: 1vh; background: rgba({$this->color_zackgrey},1);}
+#noInfoTbl #closeBtn:hover {color: rgba({$this->color_bred}, 1); cursor: pointer; }
+
 
 STYLESHEET;
       return $rtnThis;

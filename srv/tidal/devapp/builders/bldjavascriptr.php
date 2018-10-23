@@ -230,6 +230,13 @@ function searchresults() {
 
     $rtnthis = <<<RTNTHIS
 
+
+function closeDivisionalDialog() { 
+      byId('standardModalDialog').style.display = 'none';
+      byId('standardModalDialog').innerHTML = "";
+      byId('standardModalBacker').style.display = 'none';
+}
+
 function cancelIt(evt) {
   var e = (typeof evt != 'undefined') ? evt : event;
   e.cancelBubble = true;
@@ -268,11 +275,25 @@ function displayPathologyRpt(prInd,divisionalcode) {
 
 function displayDivisionalInformation(jsonReturn) { 
   //{"responseText":"{\"MESSAGE\":\"\",\"ITEMSFOUND\":1,\"DATA\":{\"name_first_last\":\"Randy Mandt, Divisional Coordinator\",\"officephone\":\"(614) 293-5493\",\"officeemail\":\"\",\"divisionalhtmldisplay\":\"<table border=1><tr><td>CHTN MIDWESTERN DIVISION<\\/td><\\/tr><\\/table>\",\"webaddress\":\"https:\\/\\/wexnermedical.osu.edu\\/human-tissue-resource-network\\/collaborative-human-tissue-network\"}}","responseCode":200}
+
+
   var rtndta = JSON.parse(jsonReturn);
   if (parseInt(rtndta['responseCode']) === 200) {
-    var txt = JSON.parse(rtndta['responseText']);
-    alert(txt['DATA']['name_first_last']);
+    var txt = JSON.parse(rtndta['responseText']);    
+    if (byId('standardModalBacker')) { 
+       byId('standardModalBacker').style.display = 'block';
+    } 
+    if (byId('standardModalDialog')) {
+      var innerhtml = txt['DATA']['divisionalhtmldisplay'];
+      var dspTbl = "<table border=0><tr><td colspan=2>You must have an account and be logged into the Transient Inventory Search App to view this information.  If you'd like more information, please use the contact below</td></tr><tr><td><b>Contact</td><td>"+txt['DATA']['name_first_last']+"</td></tr></table>";
+      var innerdsp = innerhtml.replace('#INNER#',dspTbl);
+      byId('standardModalDialog').innerHTML = innerdsp; 
+      
+      byId('standardModalDialog').style.display = 'block';
+    }
   } 
+
+
 }
 
 RTNTHIS;
