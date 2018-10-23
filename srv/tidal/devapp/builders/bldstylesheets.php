@@ -23,6 +23,7 @@ class stylesheets {
   public $color_darkgrey = "145,145,145";
   public $color_zackgrey = "48,57,71";  //#303947 
   public $color_zackcomp = "235,242,255"; //#ebf2ff
+  public $color_selectgreen = "227, 255, 219";
 
 function globalstyles() {
     
@@ -36,7 +37,10 @@ html {margin: 0; height: 100%; width: 100%; font-family: Roboto; font-size: 1.2v
 #divMenuHolder #tblMenuHolder {width: 80vw; }
 #divMenuHolder #tblMenuHolder #dspMenu {font-family: Roboto; font-size: 1.7vh; }
 #divMenuHolder #tblMenuHolder #dspMenu .menuItem {width: 7vw; }
-#divMenuHolder #tblMenuHolder #dspMenu .menuItem:hover { cursor: pointer; color: rgba({$this->color_neongreen},1); }
+#divMenuHolder #tblMenuHolder #dspMenu a:link {text-decoration: none; color: rgba({$this->color_white},1); }
+#divMenuHolder #tblMenuHolder #dspMenu a:visited {text-decoration: none; color: rgba({$this->color_white},1); }
+#divMenuHolder #tblMenuHolder #dspMenu a:hover {text-decoration: none; color: rgba({$this->color_neongreen},1); }
+#divMenuHolder #tblMenuHolder #dspMenu a:active {text-decoration: none; color: rgba({$this->color_white},1); }
 
 #topBarLogo {height: 4vh;}
 
@@ -101,11 +105,20 @@ body { margin: 0; box-sizing: border-box; padding: 7vh 10vw 0 10vw; }
 #bsDisplayTbl #bsCounter { padding: .3vh 0 .3vh .2vw; border-bottom: 1px solid rgba({$this->color_white},1); }
 #bsDisplayTbl th {padding: .5vh .1vw .5vh .1vw; }
 #bsDisplayTbl tbody tr {border-bottom: 1px solid rgba({$this->color_darkgrey},1); height: 6vh;}  
-#bsDisplayTbl tbody tr:nth-child(even) {background: rgba({$this->color_lightgrey},1); }
-#bsDisplayTbl tbody tr:hover { cursor: pointer; background: rgba({$this->color_lamber},1); }
+#bsDisplayTbl tbody tr[data-selected="selected"] {background: rgba({$this->color_selectgreen},1); }
+#bsDisplayTbl tbody tr:hover[data-selected=""] { cursor: pointer; background: rgba({$this->color_lamber},1); }
+#bsDisplayTbl tbody tr:hover[data-selected="selected"] { cursor: pointer; }
 #bsDisplayTbl tbody td {padding: .5vh .3vw .5vh .3vw; }
 #bsDisplayTbl tfoot {background: rgba({$this->color_zackgrey},1); color: rgba({$this->color_white},1); }
 #bsDisplayTbl tfoot td {padding: .5vh .3vw .5vh .3vw; }
+
+#errorMessage {font-size: 3vh; text-align: center; color: rgba({$this->zackgrey},1); padding: 15vh 0 15vh 0; }
+#errorMessage a:link { color: red; }
+#errorMessage a:visited {color: green;}
+#errorMessage a:hover { color: hotpink; }
+#errorMessage a:active { color: blue; }
+
+#successMessage {font-size: 1.6vh; text-align: justify; padding: 3vh 0 3vh 0; }
 
 STYLESHEET;
       return $rtnThis;
@@ -113,3 +126,6 @@ STYLESHEET;
   
 }
 
+
+
+/// #bsDisplayTbl tbody tr:nth-child(even) {background: rgba({$this->color_lightgrey},1); }

@@ -69,6 +69,7 @@ DIALOGGEN;
 function menugetter($whichpage) { 
 
     $atree = applicationTree; 
+    $tt = treeTop;
     $thinLogo = base64file("{$atree}/objects/graphics/chtnlogowhite.png","topBarLogo","png",true); 
 
     switch($whichpage) { 
@@ -83,8 +84,8 @@ function menugetter($whichpage) {
     <td valign=bottom align=right>
        <table border=0 id=dspMenu>
          <tr>
-           <td class=menuItem>Home</td>
-           <td class=menuItem>Search</td>
+           <td class=menuItem><a href="{$tt}">Home</a></td>
+           <td class=menuItem><a href="{$tt}/search">Search</td>
            <td class=menuItem>Contact CHTN</td>
            <td class=menuItem>About Search</td>
          </tr>

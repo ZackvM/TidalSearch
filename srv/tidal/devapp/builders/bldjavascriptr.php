@@ -54,12 +54,12 @@ function universalAJAX(usercred, pwcred, met, url, passedDataJSON, callback) {
        rtn['responseText'] = httpage.responseText;
        rtn['responseCode'] = httpage.status;
        byId('standardModalBacker').style.display = 'none';
-       callback(JSON.stringify(rtn));
+         callback(JSON.stringify(rtn));
      } else { 
        rtn['responseText'] = httpage.responseText;
        rtn['responseCode'] = httpage.status;
        byId('standardModalBacker').style.display = 'none';
-       callback(JSON.stringify(rtn));
+         callback(JSON.stringify(rtn));
      }
   }
   };
@@ -157,7 +157,6 @@ document.addEventListener('DOMContentLoaded', function() {
 if (byId('btnRequest')) { 
    byId('btnRequest').addEventListener('click', function() {
 
-
      if (byId('standardModalBacker')) { 
        byId('standardModalBacker').style.display = 'block';
          if (byId('standardModalDialog')) { 
@@ -210,7 +209,76 @@ function buildRequest() {
 JAVASCR;
 return $rtnthis;
 }
+ 
 
+function searchresults() { 
+
+    //GENERATE SINGLE USE USER-CREDENTIALS
+    session_start();
+    $dta['sid'] = session_id();
+    $sss = serverpw; 
+    $answer = tidalCommunication('POST','https://dev.chtn.science/data-service/system-posts/public-system-keys',serverident,serverpw, json_encode($dta) );
+    if ($answer['responseCode'] === 200) { 
+      //IF $answer['responseCode'] !== 200 then the secret key service didn't work!!!!
+      $content = json_decode($answer['content'], true);
+      $vid = $content['vid'];
+      $publicusr = session_id();
+      $publicobscurecode = obscurecode;   
+      $publicusrpw = cryptservice($publicusr . "::" . $publicobscurecode,'e',true);
+    }
+
+
+    $rtnthis = <<<RTNTHIS
+
+function cancelIt(evt) {
+  var e = (typeof evt != 'undefined') ? evt : event;
+  e.cancelBubble = true;
+}
+
+function selectBiosampleRow(whichrow) {
+  if (byId(whichrow)) { 
+    if (byId(whichrow).dataset.selected === "") {
+      byId(whichrow).dataset.selected = "selected";
+    } else { 
+      byId(whichrow).dataset.selected = "";
+    } 
+  } 
+}
+
+function sendRequest(url, requestedmethod,  callBack) { 
+  var publicusr = "publicuser-{$publicusr}";
+  var usrident = "{$publicusrpw}";
+  universalAJAX(publicusr, usrident,requestedmethod,url, "", callBack);
+}
+
+function displayPathologyRpt(prInd,divisionalcode) {
+    
+  var publicusr = "publicuser-{$publicusr}";
+  var usrident = "{$publicusrpw}";
+   byId('standardModalBacker').style.display = 'block';
+   if (prInd === 1) { 
+
+   } else { 
+     //GET DIVISIONAL CONTACT and display 
+     var rsp = sendRequest('https://dev.chtn.science/data-service/divisional-contact/'+divisionalcode,'GET', displayDivisionalInformation);
+
+   } 
+   byId('standardModalBacker').style.display = 'none';
+} 
+
+function displayDivisionalInformation(jsonReturn) { 
+  //{"responseText":"{\"MESSAGE\":\"\",\"ITEMSFOUND\":1,\"DATA\":{\"name_first_last\":\"Randy Mandt, Divisional Coordinator\",\"officephone\":\"(614) 293-5493\",\"officeemail\":\"\",\"divisionalhtmldisplay\":\"<table border=1><tr><td>CHTN MIDWESTERN DIVISION<\\/td><\\/tr><\\/table>\",\"webaddress\":\"https:\\/\\/wexnermedical.osu.edu\\/human-tissue-resource-network\\/collaborative-human-tissue-network\"}}","responseCode":200}
+  var rtndta = JSON.parse(jsonReturn);
+  if (parseInt(rtndta['responseCode']) === 200) {
+    var txt = JSON.parse(rtndta['responseText']);
+    alert(txt['DATA']['name_first_last']);
+  } 
+}
+
+RTNTHIS;
+return $rtnthis;
+
+}
 
 }
 

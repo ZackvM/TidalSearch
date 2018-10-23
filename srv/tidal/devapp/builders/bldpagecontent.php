@@ -85,6 +85,7 @@ return $rtnthis;
   } 
 
   function searchresults($rqststr) { 
+      $tt = treeTop;
       if (trim($rqststr[2]) === "") { 
         $rtnthis = "<h1>Search ID NOT SPECIFIED</h1>";
       } else { 
@@ -129,64 +130,12 @@ return $rtnthis;
               }
             }
 
-
-            session_start(); 
-            if ($_SESSION['loggedon'] === 1) { 
-              $allowalldata = 1;
-            } else { 
-              $allowalldata = 0;
-            }
-
-            $foundBS = 0;
-            foreach (shuffle_assoc($arrToDisplay) as $rtnArrKey => $rtnArr) { 
-  
-$ars = (trim($rtnArr['phiage']) === "") ? "-" : $rtnArr['phiage'];
-$ars .= (trim($rtnArr['phirace']) === "") ? "/-" : "/{$rtnArr['phirace']}";
-$ars .= (trim($rtnArr['phisex']) === "") ? "/-" : "/{$rtnArr['phisex']}";
-
-$cxrx = (trim($rtnArr['chemo']) === "") ? "-" : "/{$rtnArr['chemo']}";
-$cxrx .= (trim($rtnArr['rad']) === "") ? "/-" : "/{$rtnArr['rad']}";
-
-if ($allowalldata === 1) { 
-    //DISPLAY PATHOLOGY REPORTS
-} else { 
-    //DISPLAY DIVISIONAL CONTACTS
-}
-
-$displayTblInner .= <<<ROWMAKER
-<tr>
-  <td>&nbsp;</td>
-  <td valign=top>{$rtnArr['divisionallabel']}</td>
-  <td valign=top>{$rtnArr['site']}</td>
-  <td valign=top>{$rtnArr['diagnosis']}</td>
-  <td valign=top>{$rtnArr['category']}</td>
-  <td valign=top>{$rtnArr['metssite']}</td>
-  <td valign=top>{$rtnArr['proctype']}</td>
-  <td valign=top>{$rtnArr['preparation']}</td>
-  <td valign=top>{$rtnArr['metric']}</td>
-  <td valign=top>{$ars}</td>
-  <td valign=top>{$cxrx}</td>
-</tr>
-ROWMAKER;
-$foundBS++;
-            }
-
-
-            $displayThis = "<table border=0 id=bsDisplayTbl>";
-            $displayThis .= "<thead><tr><td colspan=13 id=bsCounter>Biosamples Found: {$foundBS}</td></tr>";
-            $displayThis .= "<tr><th>&nbsp;</th><th align=left>Division #</th><th align=left>Site</th><th align=left>Diagnosis</th><th align=left>Category</th><th align=left>Metstatic</th><th align=left>Procedure</th><th align=left>Preparation</th><th align=left>Metric</th><th align=left>A-R-S</th><th align=left>Chemo/Rad</th></tr></thead>";
-            $displayThis .= $displayTblInner;
-            $displayThis .= "<tfoot><tr><td colspan=13>Biosamples Found: {$foundBS}</td></tr></tfoot>";
-            $displayThis .= "</table>";
-
-
+$displayThis = buildResultGrid($arrToDisplay);
 
 $rtnthis = <<<PAGEHERE
 {$displayThis} 
-
 <p>
 PAGEHERE;
-
         } else { 
           $rtnthis = "<h1>Search ID NOT FOUND.  RESPECIFY SEARCH CRITERIA <a href=\"javascript: void(0);\" onclick=\"navigateSite('search');\">Click here</a></h1>";
         }
@@ -198,3 +147,58 @@ PAGEHERE;
 
 }
 
+
+function buildResultGrid($bltArray) { 
+            session_start(); 
+            if ($_SESSION['loggedon'] === 1) { 
+              $allowalldata = 1;
+            } else { 
+              $allowalldata = 0;
+            }
+            $foundBS = 0;
+            foreach (shuffle_assoc($bltArray) as $rtnArrKey => $rtnArr) {   
+              $ars = (trim($rtnArr['phiage']) === "") ? "-" : $rtnArr['phiage'];
+              $ars .= (trim($rtnArr['phirace']) === "") ? "/-" : "/{$rtnArr['phirace']}";
+              $ars .= (trim($rtnArr['phisex']) === "") ? "/-" : "/{$rtnArr['phisex']}";
+              $cxrx = (trim($rtnArr['chemo']) === "") ? "-" : "/{$rtnArr['chemo']}";
+              $cxrx .= (trim($rtnArr['rad']) === "") ? "/-" : "/{$rtnArr['rad']}";
+              if ($allowalldata === 1) { 
+                   //DISPLAY PATHOLOGY REPORTS
+                   $pathologyTextInd = 1;
+              } else { 
+                  //DISPLAY DIVISIONAL CONTACTS
+                  $pathologyTextInd = 0;
+              }
+$displayTblInner .= <<<ROWMAKER
+<tr id="row{$foundBS}" data-label="{$rtnArr['divisionallabel']}" data-selected="" data-division="{$rtnArr['divisioncode']}" onclick="selectBiosampleRow('row{$foundBS}');">
+  <td valign=top onclick="cancelIt(event); displayPathologyRpt({$pathologyTextInd},'{$rtnArr['divisioncode']}');"><i class="material-icons">open_in_new</i></td>
+  <td valign=top>{$rtnArr['divisionallabel']}&nbsp;</td>
+  <td valign=top>{$rtnArr['site']}&nbsp;</td>
+  <td valign=top>{$rtnArr['diagnosis']}&nbsp;</td>
+  <td valign=top>{$rtnArr['category']}&nbsp;</td>
+  <td valign=top>{$rtnArr['metssite']}&nbsp;</td>
+  <td valign=top>{$rtnArr['proctype']}&nbsp;</td>
+  <td valign=top>{$rtnArr['preparation']}&nbsp;</td>
+  <td valign=top>{$rtnArr['metric']}&nbsp;</td>
+  <td valign=top>{$ars}&nbsp;</td>
+  <td valign=top>{$cxrx}&nbsp;</td>
+</tr>
+ROWMAKER;
+$foundBS++;
+            }
+ if ((int)$foundBS === 0) { 
+                //No Found Message
+                $displayThis = "<div id=errorMessage>Thank you for using <b>CHTN Transient Inventory Search</b>.  We are sorry but no biosamples were found to match your search criteria.  Please go back to the <a href='{$tt}\search'>search</a> screen and try again or call the CHTN directly at (440) 477-5952.</div>";
+            } else {  
+            
+              $displayThis = "<div id=successMessage>Thank you for using the <b>CHTN Transient Inventory Search</b>.  The application has searched the various CHTN's services and found {$foundBS} biosamples that possibly meet your search criteria.  You can review the list below.  If you are interested in any of these biosamples, select the biosample(s) of interest by clicking the row.  To make a request, once finished with your selection, click the request button. <p>To see more information about the biosample, click the <i class='material-icons'>open_in_new</i> icon.</div>";        
+
+              $displayThis .= "<table border=0 id=bsDisplayTbl>";
+              $displayThis .= "<thead><tr><td colspan=13 id=bsCounter>Biosamples Found: {$foundBS}</td></tr>";
+              $displayThis .= "<tr><th>&nbsp;</th><th align=left>Division #</th><th align=left>Site</th><th align=left>Diagnosis</th><th align=left>Category</th><th align=left>Metstatic</th><th align=left>Procedure</th><th align=left>Preparation</th><th align=left>Metric</th><th align=left>A-R-S</th><th align=left>Chemo/Rad</th></tr></thead>";
+              $displayThis .= $displayTblInner;
+              $displayThis .= "<tfoot><tr><td colspan=13>Biosamples Found: {$foundBS}</td></tr></tfoot>";
+              $displayThis .= "</table>";
+            }
+return $displayThis;
+}
