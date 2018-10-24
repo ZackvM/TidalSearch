@@ -51,7 +51,19 @@ PAGEHERE;
   }
 
   function search($rqststr) { 
-  
+
+      $mnuSpecCatArr = tidalCommunication('GET','https://dev.chtn.science/data-service/menus/specimen-category',serverident,serverpw);
+      if ((int)$mnuSpecCatArr['responseCode'] === 200) {
+          $mnuSPC = json_decode($mnuSpecCatArr['content'],true);
+          $mnuSpecCatTbl = "<table border=0 cellspacing=0 cellpadding=0 id=specimenCategoryMenuTbl class=menuTable><tr><td  class=menuItemNoHighLight  onclick=\"fillSpecimenCategory('');\">[clear value]</td></tr>";
+        foreach ($mnuSPC['DATA'] as $mnuval) { 
+          $mnuSpecCatTbl .= "<tr><td class=menuItem onclick=\"fillSpecimenCategory('{$mnuval['menudisplay']}');\">{$mnuval['menudisplay']}</td></tr>";
+        }
+        $mnuSpecCatTbl .= "</table>";
+      }
+
+//TODO:ADD IN ABILITY TO SEARCH CERTAIN DIVISION 
+
       $rtnthis = <<<PAGEHERE
 
 <table border=0 id=tblQueryCriteria>
@@ -62,9 +74,9 @@ PAGEHERE;
   <td class=generalFieldLabel>Specimen Category</td>
 </tr>
 <tr>
-  <td><input type=text id=fldSite class=generalInputField></td>
-  <td><input type=text id=fldDiagnosis class=generalInputField></td>
-  <td><input type=text id=fldSpecimenCategory class=generalInputField></td>
+  <td valign=top><input type=text id=fldSite class=generalInputField></td>
+  <td valign=top><input type=text id=fldDiagnosis class=generalInputField></td>
+  <td valign=top><div id=menuHolder><input type=text id=fldSpecimenCategory class=generalInputField READONLY> <div id=menuDropDown>{$mnuSpecCatTbl}</div></div></td>
 </tr>
 <tr><td colspan=3><center>
             <table>
@@ -149,12 +161,15 @@ PAGEHERE;
 
 
 function buildResultGrid($bltArray) { 
+
+
             session_start(); 
-            if ($_SESSION['loggedon'] === 1) { 
+            if ((int)$_SESSION['loggedon'] === 1) { 
               $allowalldata = 1;
             } else { 
-              $allowalldata = 0;
+                $allowalldata = 0;
             }
+
             $foundBS = 0;
             foreach (shuffle_assoc($bltArray) as $rtnArrKey => $rtnArr) {   
               $ars = (trim($rtnArr['phiage']) === "") ? "-" : $rtnArr['phiage'];
@@ -163,15 +178,25 @@ function buildResultGrid($bltArray) {
               $cxrx = (trim($rtnArr['chemo']) === "") ? "-" : "/{$rtnArr['chemo']}";
               $cxrx .= (trim($rtnArr['rad']) === "") ? "/-" : "/{$rtnArr['rad']}";
               if ($allowalldata === 1) { 
-                   //DISPLAY PATHOLOGY REPORTS
+                  //DISPLAY PATHOLOGY REPORTS
+                  
+                  if ((int)strlen($rtnArr['pathologyrptreference']) > 500) { 
                    $pathologyTextInd = 1;
+                   $pathologyrpt = "";
+                  } else { 
+                   $pathologyTextInd = 2;
+                   $pathologyrpt = "";
+                  }
+
               } else { 
                   //DISPLAY DIVISIONAL CONTACTS
                   $pathologyTextInd = 0;
+                  $pathologyrpt = "";
               }
+
 $displayTblInner .= <<<ROWMAKER
 <tr id="row{$foundBS}" data-label="{$rtnArr['divisionallabel']}" data-selected="" data-division="{$rtnArr['divisioncode']}" onclick="selectBiosampleRow('row{$foundBS}');">
-  <td valign=top onclick="cancelIt(event); displayPathologyRpt({$pathologyTextInd},'{$rtnArr['divisioncode']}');"><i class="material-icons">open_in_new</i></td>
+  <td valign=top onclick="cancelIt(event); displayPathologyRpt({$pathologyTextInd},'{$rtnArr['divisioncode']}','');"><i class="material-icons">open_in_new</i></td>
   <td valign=top>{$rtnArr['divisionallabel']}&nbsp;</td>
   <td valign=top>{$rtnArr['site']}&nbsp;</td>
   <td valign=top>{$rtnArr['diagnosis']}&nbsp;</td>
@@ -190,9 +215,30 @@ $foundBS++;
                 //No Found Message
                 $displayThis = "<div id=errorMessage>Thank you for using <b>CHTN Transient Inventory Search</b>.  We are sorry but no biosamples were found to match your search criteria.  Please go back to the <a href='{$tt}\search'>search</a> screen and try again or call the CHTN directly at (440) 477-5952.</div>";
             } else {  
-            
-              $displayThis = "<div id=successMessage>Thank you for using the <b>CHTN Transient Inventory Search</b>.  The application has searched the various CHTN's services and found {$foundBS} biosamples that possibly meet your search criteria.  You can review the list below.  If you are interested in any of these biosamples, select the biosample(s) of interest by clicking the row.  To make a request, once finished with your selection, click the request button. <p>To see more information about the biosample, click the <i class='material-icons'>open_in_new</i> icon.</div>";        
 
+              if ($allowalldata === 1) { 
+                  //GET LOGIN
+                  $sessid = session_id();
+                  $getStuff = tidalCommunication('GET',"https://dev.chtn.science/data-service/login-information/{$sessid}",serverident,serverpw, json_encode($idchk));
+                  $dta = json_decode($getStuff['content'], true);
+
+                  $acctDsp = substr(('00000'.$dta['DATA']['acctid']),-5);
+                  $nme =  "{$dta['DATA']['salutation']} {$dta['DATA']['fname']} {$dta['DATA']['lname']}"; 
+                  $loginTbl = <<<USRTBL
+
+<table border=0 width=100%>
+<tr><td width=80%></td><td style="white-space: nowrap;"><b>Login</b>: </td><td style="white-space: nowrap;">{$dta['DATA']['acctname']}</td></tr>
+<tr><td></td><td style="white-space: nowrap;"><b>Name</b>: </td><td style="white-space: nowrap;">{$nme} ({$acctDsp})</td></tr>
+<tr><td></td><td style="white-space: nowrap;"><b>Institution</b>: </td><td style="white-space: nowrap;">{$dta['DATA']['institution']}</td></tr>
+</table>
+USRTBL;
+                  $displayThis = $loginTbl;
+              } else {
+                  $displayThis = "";
+              }
+
+
+              $displayThis .= "<div id=successMessage>Thank you for using the <b>CHTN Transient Inventory Search</b>.  The application has searched the various CHTN's services and found {$foundBS} biosamples that possibly meet your search criteria.  You can review the list below.  If you are interested in any of these biosamples, select the biosample(s) of interest by clicking the row.  To make a request, once finished with your selection, click the request button. <p>To see more information about the biosample, click the <i class='material-icons'>open_in_new</i> icon.</div>";        
               $displayThis .= "<table border=0 id=bsDisplayTbl>";
               $displayThis .= "<thead><tr><td colspan=13 id=bsCounter>Biosamples Found: {$foundBS}</td></tr>";
               $displayThis .= "<tr><th>&nbsp;</th><th align=left>Division #</th><th align=left>Site</th><th align=left>Diagnosis</th><th align=left>Category</th><th align=left>Metstatic</th><th align=left>Procedure</th><th align=left>Preparation</th><th align=left>Metric</th><th align=left>A-R-S</th><th align=left>Chemo/Rad</th></tr></thead>";

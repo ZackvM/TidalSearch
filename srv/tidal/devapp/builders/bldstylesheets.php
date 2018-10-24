@@ -88,7 +88,20 @@ body { margin: 0; box-sizing: border-box; padding: 7vh 10vw 0 10vw; }
 
 #waitDialog { font-size: 1.6vh; color: rgba({$this->color_zackgrey},1);}
 #waitDialog #advisory {font-size: 1.6vh; line-height: 1.7em;  } 
-#timerDsp {font-size: 3vh; text-align: center; padding: 1vh 0 1vh 0; } 
+#timerDsp {font-size: 3vh; text-align: center; padding: 1vh 0 1vh 0; }
+
+#menuHolder { position: relative; }
+#menuDropDown { position: absolute; left: 0; display: none; max-height: 19vh; overflow: auto; }
+#menuHolder:hover #menuDropDown { display: block; } 
+
+.menuTable { min-width: 25vw; border: 1px solid rgba({$this->color_zackgrey},1); border-top: none; background: rgba({$this->color_white},1);  }
+
+.menuItem {font-family: Roboto; font-size: 1.6vh; padding: 5px; }
+.menuItem:hover { cursor: pointer; background: rgba({$this->color_lamber},1); }
+
+
+.menuItemNoHighLight {font-family: Roboto; font-size: 1.2vh; padding: 5px; text-align: right; }
+.menuItemNoHighLight:hover { cursor: pointer; }
 
 STYLESHEET;
       return $rtnThis;

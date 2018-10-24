@@ -204,7 +204,11 @@ function buildRequest() {
   return passdata;
 }
 
-
+function fillSpecimenCategory(fillValue) { 
+  if (byId('fldSpecimenCategory')) { 
+    byId('fldSpecimenCategory').value = fillValue;
+  } 
+}
 
 JAVASCR;
 return $rtnthis;
@@ -229,7 +233,6 @@ function searchresults() {
 
 
     $rtnthis = <<<RTNTHIS
-
 
 function closeDivisionalDialog() { 
       byId('standardModalDialog').style.display = 'none';
@@ -258,25 +261,26 @@ function sendRequest(url, requestedmethod,  callBack) {
   universalAJAX(publicusr, usrident,requestedmethod,url, "", callBack);
 }
 
-function displayPathologyRpt(prInd,divisionalcode) {
+function displayPathologyRpt(prInd, divisionalcode, prtext) {
     
   var publicusr = "publicuser-{$publicusr}";
   var usrident = "{$publicusrpw}";
    byId('standardModalBacker').style.display = 'block';
-   if (prInd === 1) { 
-
-   } else { 
+   switch(prInd) { 
+     case  1:
+       alert('DISPLAY PR');
+     break; 
+     case 2: 
+       alert('DISPLAY PATHOLOGY REPORT HERE');
+     break;
+     default: 
      //GET DIVISIONAL CONTACT and display 
      var rsp = sendRequest('https://dev.chtn.science/data-service/divisional-contact/'+divisionalcode,'GET', displayDivisionalInformation);
-
    } 
    byId('standardModalBacker').style.display = 'none';
 } 
 
 function displayDivisionalInformation(jsonReturn) { 
-  //{"responseText":"{\"MESSAGE\":\"\",\"ITEMSFOUND\":1,\"DATA\":{\"name_first_last\":\"Randy Mandt, Divisional Coordinator\",\"officephone\":\"(614) 293-5493\",\"officeemail\":\"\",\"divisionalhtmldisplay\":\"<table border=1><tr><td>CHTN MIDWESTERN DIVISION<\\/td><\\/tr><\\/table>\",\"webaddress\":\"https:\\/\\/wexnermedical.osu.edu\\/human-tissue-resource-network\\/collaborative-human-tissue-network\"}}","responseCode":200}
-
-
   var rtndta = JSON.parse(jsonReturn);
   if (parseInt(rtndta['responseCode']) === 200) {
     var txt = JSON.parse(rtndta['responseText']);    
@@ -285,15 +289,12 @@ function displayDivisionalInformation(jsonReturn) {
     } 
     if (byId('standardModalDialog')) {
       var innerhtml = txt['DATA']['divisionalhtmldisplay'];
-      var dspTbl = "<table border=0><tr><td colspan=2>You must have an account and be logged into the Transient Inventory Search App to view this information.  If you'd like more information, please use the contact below</td></tr><tr><td><b>Contact</td><td>"+txt['DATA']['name_first_last']+"</td></tr></table>";
+      var dspTbl = "<table border=0><tr><td colspan=2 style=\"text-align: justify; padding: 5px; line-height: 1.4em;\">You must have an account and logged into the Transient Inventory Search App to view this information.  If you'd like more information about this or other biosamples and services, please use the contact information below.</td></tr><tr><td><b>Contact</td><td>"+txt['DATA']['name_first_last']+"</td></tr><tr><td><b>Phone</b></td><td>"+txt['DATA']['officephone']+"</td></tr><tr><td><b>Email</b></td><td>"+txt['DATA']['officeemail']+"</td></tr><tr><td colspan=2><center><a href=\""+txt['DATA']['webaddress']+"\" target=\"_new\">Division Website</a></table>";
       var innerdsp = innerhtml.replace('#INNER#',dspTbl);
-      byId('standardModalDialog').innerHTML = innerdsp; 
-      
+      byId('standardModalDialog').innerHTML = innerdsp;  
       byId('standardModalDialog').style.display = 'block';
     }
   } 
-
-
 }
 
 RTNTHIS;
