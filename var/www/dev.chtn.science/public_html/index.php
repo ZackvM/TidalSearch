@@ -108,6 +108,37 @@ $userAgent = $_SERVER['HTTP_USER_AGENT'];
 $originalRequest = str_replace("-","", strtolower($_SERVER['REQUEST_URI']));
 $request = explode("/",str_replace("-","", strtolower($_SERVER['REQUEST_URI']))); 
 
+
+
+
+
+
+/****************************
+ * TODO:THIS IS FOR TESTING LOGON FUNCTIONALITY ONLY - REMOVE IN PRODUCTION
+ * THESE LINES ALLOW TESTING OF LOGGED IN FUNCTALITY WITHOUT HAVING TO HAVE AN ACCOUNT BUILT SECTION
+ * REMOVE REMOVE REMOVE!!! 
+ *
+ */
+if ($request[1] === "l3t1tg0") {
+   
+    $_SESSION['loggedon'] = 1;
+    $logArr = json_encode(array('sessid' => session_id(),'acctname' => 'zacheryv@mail.med.upenn.edu'));
+    $rsponse = tidalCommunication("POST","https://dev.chtn.science/data-service/system-posts/record-login",serverident,serverpw,$logArr);
+
+    if ((int)$rsponse['responseCode'] === 200) {
+      header('location: https://dev.chtn.science');
+    }
+   exit();
+}
+/***************************
+ *TODO:THIS IS FOR TESTING LOGON FUNCTIONALITY ONLY - REMOVE ABOVE LINES IN PRODUCTION
+ */
+
+
+
+
+
+
 //BEGIN BUILDING SERVICE
 if ($request[1] === "dataservice") { 
     //DATA SERVICES TO GET AND POST DATA NO RELATED TO DATA PAGES
@@ -137,7 +168,6 @@ if ($request[1] === "dataservice") {
               echo $data;
               exit(); 
             }
-
 
           //PUBLIC ID
           $authuser = explode("-", $authuser);
@@ -173,7 +203,50 @@ if ($request[1] === "dataservice") {
 
          break; 
          case "GET":
-           echo "GET DATA SERVICE";
+
+            $authuser = $_SERVER['PHP_AUTH_USER']; 
+            $authpw = cryptservice( $_SERVER['PHP_AUTH_PW'] , 'd');
+
+            //PUBLIC ID
+            $allow = 0;
+            if ($authuser === serverident) {
+              //Request from the server 
+              $allow = 1;
+            } else {  
+              //CHECK PASSWORD
+              $authuser = explode("-", $authuser);
+              $publicuser = $authuser[1];
+              $publicpw = cryptservice( $_SERVER['PHP_AUTH_PW'], 'd', true, $publicuser ); 
+              if ("{$publicuser}::{$publicobscure}" === "{$publicpw}") {
+                $allow = 1;
+              } 
+            }
+  
+          if (($authuser[0] === "publicuser") || ( $authuser === serverident && $authpw === servertrupw  )) { 
+              if ($allow === 1) {  
+
+                require(applicationTree . "/dataservices/getter/publicdatagetter.php");
+                $doer = new datagetters($originalRequest, $authuser[1]);
+                $responseCode = $doer->responseCode; 
+                $data = $doer->rtnData;  
+                header('Content-type: application/json; charset=utf8');
+                header('Access-Control-Allow-Origin: *'); 
+                header('Access-Control-Allow-Header: Origin, X-Requested-With, Content-Type, Accept');
+                header('Access-Control-Max-Age: 3628800'); 
+                header('Access-Control-Allow-Methods: GET');
+                http_response_code($responseCode);
+                echo $data;
+                exit();
+
+
+              }
+          }
+          
+          http_response_code(401);
+          header('HTTP/1.0 401 Unauthorized');
+          echo "UNAUTHORIZED REQUEST.  WILL BE TRACKED (IP ADDRESS: {$requesterIP} {$publicpw})";
+          //TODO:WRITE UNAUTH TRACKER HERE
+
          break;
       default:
           http_response_code(405);

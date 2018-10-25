@@ -44,10 +44,27 @@ class publicends {
          $message .= "\r\n- You must specify either a Site or a Diagnosis";
          $allow = 0;    
       }     
+
       if (trim($dta['Site']) !== "" && (trim($dta['Diagnosis']) === "" && trim($dta['SpecimenCategory']) === "")) { 
          $message .= "\r\n- With an Anatomic Site, you must also specify a Specimen Category and/or a Diagnosis";
          $allow = 0;    
+      }
+
+      if (trim($dta['Site']) !== "" && strlen(trim($dta['Site'])) < 4) { 
+         $message .= "\r\n- With an Anatomic Site, provide more than 3 characters";
+         $allow = 0;    
+      }
+
+      if (trim($dta['Diagnosis']) !== "" && strlen(trim($dta['Diagnosis'])) < 4) { 
+         $message .= "\r\n- When querying a diagnosis, provide more than 3 characters";
+         $allow = 0;    
+      }
+
+      if (trim($dta['SrvList']) === "") {  
+         $message .= "\r\n- A CHTN Division must be specified";
+         $allow = 0;    
       } 
+
       $prepSpecified = 0;
       foreach($dta as $ky =>  $val) {
           if (substr($ky,0,3) === "prp") {   

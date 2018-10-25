@@ -116,15 +116,56 @@ class systemposts {
         return array('statusCode' => $rspcode, 'data' => array("rtn" => $rtnDta));        
     }
 
+    function recordlogin($rqst, $pdta) {
+        //THIS IS A TESTING ONLY LOGIN METHOD!!!  DO NOT USE IN PRODUCTION!!!! 
+        $rspcode = 404;
+        $dta = json_decode($pdta, true);
+        require(serverkeys . "/sspdo.zck");
+        $rtnDta = $dta['acctname'];
+        $chkSQL = "select acctid from tidal_webcapture.base_accounts where acctname = :acctname";
+        $rs = $conn->prepare($chkSQL); 
+        $rs->execute(array(':acctname' => $dta['acctname']));
+        $r = $rs->fetch(PDO::FETCH_ASSOC);
+        $updSQL = "update tidal_webcapture.base_accounts set lastLogDate = now() where acctid = :acctid";
+        $updR = $conn->prepare($updSQL); 
+        $updR->execute(array(':acctid' => $r['acctid']));
+        $sysUpdSQL = "update tidal_webcapture.sys_acctlogin set activeind = 0 where acctid = :acctid";
+        $sysUpdR = $conn->prepare($sysUpdSQL); 
+        $sysUpdR->execute(array(':acctid' => $r['acctid']));
+        $insSQL = "insert into tidal_webcapture.sys_acctlogin(sessionid, acctid, loggedOn, activeind) value(:sessid, :acctid ,now() ,1)";
+        $insR = $conn->prepare($insSQL); 
+        $insR->execute(array(':sessid' => $dta['sessid'], ':acctid' => $r['acctid']));
+        $rspcode = 200;
+        return array('statusCode' => $rspcode, 'data' => array("rtn" => $r['acctid']));        
+    }
+
 }
 
 
 function runmastersearch($searchjson) { 
   require(serverkeys . "/sspdo.zck");
   $data = array();
-  $getServiceList = "select identifiercode,servicename,requesttype,endpoint,credentialuser, credentialpassword, authencode, samplebody, headerspecificjson as hdrs from tidal_webcapture.sys_registeredservices where activeind = 1";
-  $getServiceR = $conn->prepare($getServiceList);
-  $getServiceR->execute();
+
+  
+  $rqstArr = json_decode($searchjson, true);
+  
+  if (array_key_exists('SrvList',$rqstArr)) { 
+      if ($rqstArr['SrvList'] === "All Divisions") { 
+        $getServiceList = "select identifiercode,servicename,requesttype,endpoint,credentialuser, credentialpassword, authencode, samplebody, headerspecificjson as hdrs from tidal_webcapture.sys_registeredservices where activeind = 1";
+        $getServiceR = $conn->prepare($getServiceList);
+        $getServiceR->execute();
+      } else { 
+        $getServiceList = "select identifiercode,servicename,requesttype,endpoint,credentialuser, credentialpassword, authencode, samplebody, headerspecificjson as hdrs from tidal_webcapture.sys_registeredservices where activeind = 1 and servicename = :srvname";
+        $getServiceR = $conn->prepare($getServiceList);
+        $getServiceR->execute(array(':srvname' => $rqstArr['SrvList']));
+      }
+  } else { 
+      $getServiceList = "select identifiercode,servicename,requesttype,endpoint,credentialuser, credentialpassword, authencode, samplebody, headerspecificjson as hdrs from tidal_webcapture.sys_registeredservices where activeind = 1";
+      $getServiceR = $conn->prepare($getServiceList);
+      $getServiceR->execute();
+  }
+
+
   if ($getServiceR->rowCount() < 1) {
      //ERROR - NO SERVICES FOUND 
   } else { 
