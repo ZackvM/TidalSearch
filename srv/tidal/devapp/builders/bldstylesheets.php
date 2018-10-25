@@ -36,7 +36,7 @@ html {margin: 0; height: 100%; width: 100%; font-family: Roboto; font-size: 1.2v
 #divMenuHolder { position: fixed; top: 0; left: 0; width: 100%; box-sizing: border-box;  background: rgba({$this->color_zackgrey},1); color: rgba({$this->color_white},1); padding: .3vh 10vw .3vh 10vw;}
 #divMenuHolder #tblMenuHolder {width: 80vw; }
 #divMenuHolder #tblMenuHolder #dspMenu {font-family: Roboto; font-size: 1.7vh; }
-#divMenuHolder #tblMenuHolder #dspMenu .menuItem {width: 7vw; }
+#divMenuHolder #tblMenuHolder #dspMenu .topMenuItem {width: 7vw; }
 #divMenuHolder #tblMenuHolder #dspMenu a:link {text-decoration: none; color: rgba({$this->color_white},1); }
 #divMenuHolder #tblMenuHolder #dspMenu a:visited {text-decoration: none; color: rgba({$this->color_white},1); }
 #divMenuHolder #tblMenuHolder #dspMenu a:hover {text-decoration: none; color: rgba({$this->color_neongreen},1); }
@@ -113,7 +113,7 @@ STYLESHEET;
 
 body { margin: 0; box-sizing: border-box; padding: 7vh 10vw 0 10vw; }
 
-#bsDisplayTbl {font-family: Roboto; font-size: 1.3vh; border: 1px solid rgba({$this->color_zackgrey},1); border-collapse: collapse; }
+#bsDisplayTbl {font-family: Roboto; font-size: 1.3vh; border: 1px solid rgba({$this->color_zackgrey},1); border-collapse: collapse; width: 100%; }
 #bsDisplayTbl thead {background: rgba({$this->color_zackgrey},1); color: rgba({$this->color_white},1); }
 #bsDisplayTbl #bsCounter { padding: .3vh 0 .3vh .2vw; border-bottom: 1px solid rgba({$this->color_white},1); }
 #bsDisplayTbl th {padding: .5vh .1vw .5vh .1vw; }

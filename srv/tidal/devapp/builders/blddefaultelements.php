@@ -76,7 +76,8 @@ function menugetter($whichpage) {
       case 'uniquepage':
           $rtnthis = "SEARCH MENU";
           break;
-      default: 
+      default:
+         //<td class=menuItem>Contact CHTN</td><td class=menuItem>About Search</td>
           $rtnthis = <<<MENUPAGE
 <table border=0 id=tblMenuHolder>
   <tr>
@@ -84,10 +85,8 @@ function menugetter($whichpage) {
     <td valign=bottom align=right>
        <table border=0 id=dspMenu>
          <tr>
-           <td class=menuItem><a href="{$tt}">Home</a></td>
-           <td class=menuItem><a href="{$tt}/search">Search</td>
-           <td class=menuItem>Contact CHTN</td>
-           <td class=menuItem>About Search</td>
+           <td class=topMenuItem valign=bottom><a href="{$tt}"><i class="material-icons">home</i>Home</a></td>
+           <td class=topMenuItem valign=bottom><a href="{$tt}/search"><i class="material-icons">search</i>Search</td>
          </tr>
        </table>
     </td>

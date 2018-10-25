@@ -161,7 +161,6 @@ if (byId('btnRequest')) {
        byId('standardModalBacker').style.display = 'block';
          if (byId('standardModalDialog')) { 
            byId('standardModalDialog').style.display = 'block';
-           //TIMER GOES HERE
            initClock();
          }
      }
@@ -204,9 +203,9 @@ function buildRequest() {
   return passdata;
 }
 
-function fillSpecimenCategory(fillValue) { 
-  if (byId('fldSpecimenCategory')) { 
-    byId('fldSpecimenCategory').value = fillValue;
+function fillFieldValue(fldId, fillValue) { 
+  if (byId(fldId)) { 
+    byId(fldId).value = fillValue;
   } 
 }
 

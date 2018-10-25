@@ -55,14 +55,22 @@ PAGEHERE;
       $mnuSpecCatArr = tidalCommunication('GET','https://dev.chtn.science/data-service/menus/specimen-category',serverident,serverpw);
       if ((int)$mnuSpecCatArr['responseCode'] === 200) {
           $mnuSPC = json_decode($mnuSpecCatArr['content'],true);
-          $mnuSpecCatTbl = "<table border=0 cellspacing=0 cellpadding=0 id=specimenCategoryMenuTbl class=menuTable><tr><td  class=menuItemNoHighLight  onclick=\"fillSpecimenCategory('');\">[clear value]</td></tr>";
+          $mnuSpecCatTbl = "<table border=0 cellspacing=0 cellpadding=0 id=specimenCategoryMenuTbl class=menuTable><tr><td  class=menuItemNoHighLight  onclick=\"fillFieldValue(fldSpecimenCategory,'');\">[clear value]</td></tr>";
         foreach ($mnuSPC['DATA'] as $mnuval) { 
-          $mnuSpecCatTbl .= "<tr><td class=menuItem onclick=\"fillSpecimenCategory('{$mnuval['menudisplay']}');\">{$mnuval['menudisplay']}</td></tr>";
+          $mnuSpecCatTbl .= "<tr><td class=menuItem onclick=\"fillFieldValue('fldSpecimenCategory','{$mnuval['menudisplay']}');\">{$mnuval['menudisplay']}</td></tr>";
         }
         $mnuSpecCatTbl .= "</table>";
       }
 
-//TODO:ADD IN ABILITY TO SEARCH CERTAIN DIVISION 
+      $mnuSrvListArr = tidalCommunication('GET','https://dev.chtn.science/data-service/service-list',serverident,serverpw);
+      if ((int)$mnuSrvListArr['responseCode'] === 200) {
+          $mnuSrv = json_decode($mnuSrvListArr['content'],true);
+          $mnuSrvListTbl = "<table border=0 cellspacing=0 cellpadding=0 id=srvListMenuTbl class=menuTable><tr><td class=menuItem onclick=\"fillFieldValue('fldSrvList','All Divisions');\">All Divisions</td></tr>";
+        foreach ($mnuSrv['DATA'] as $mnuval) { 
+          $mnuSrvListTbl .= "<tr><td class=menuItem onclick=\"fillFieldValue('fldSrvList','{$mnuval['servicename']}');\">{$mnuval['servicename']}</td></tr>";
+        }
+        $mnuSrvListTbl .= "</table>";
+      }
 
       $rtnthis = <<<PAGEHERE
 
@@ -88,7 +96,8 @@ PAGEHERE;
             </table>
       </td>
 </tr>
-<!-- TODO: ADD IN SEARCH ONE DIVISION ONLY //-->
+<tr><td class=generalFieldLabel>CHTN Divisions</td><td></td><td></td></tr>
+<tr><td valign=top><div id=menuHolder><input type=text id=fldSrvList class=generalInputField READONLY value="All Divisions"> <div id=menuDropDown>{$mnuSrvListTbl}</div></div></td></tr>
 <tr><td colspan=3 align=right><input type=button id=btnRequest value="Search"></td></tr>
 </table>
 
@@ -114,13 +123,10 @@ return $rtnthis;
               foreach($content['rtn'] as $key => $value) {
                 $rtnData = json_decode($value, true);   
                 foreach($rtnData as $ky => $vl) {
-                   //if (strtolower( trim( $ky ) ) === 'recordsfound') {   
-                   //    $displayThis .= "<br>{$ky} => {$vl}"; 
-                   //}
                    if (strtolower( trim( $ky ) )  === 'returndata') {
                        foreach ($vl as $rtnKy => $rtnVl) {
                           //***************************************
-                          //TODO:  MAKE THIS DYNAMIC!!!!  
+                          //TODO: MAKE THIS DYNAMIC!!!!  
                           //FOR NOW ITS HARD CODED
                           //**************************************
                           switch ($rtnVl['divisioncode']) { 
@@ -175,7 +181,7 @@ function buildResultGrid($bltArray) {
               $ars = (trim($rtnArr['phiage']) === "") ? "-" : $rtnArr['phiage'];
               $ars .= (trim($rtnArr['phirace']) === "") ? "/-" : "/{$rtnArr['phirace']}";
               $ars .= (trim($rtnArr['phisex']) === "") ? "/-" : "/{$rtnArr['phisex']}";
-              $cxrx = (trim($rtnArr['chemo']) === "") ? "-" : "/{$rtnArr['chemo']}";
+              $cxrx = (trim($rtnArr['chemo']) === "") ? "-" : "{$rtnArr['chemo']}";
               $cxrx .= (trim($rtnArr['rad']) === "") ? "/-" : "/{$rtnArr['rad']}";
               if ($allowalldata === 1) { 
                   //DISPLAY PATHOLOGY REPORTS
@@ -235,8 +241,7 @@ USRTBL;
                   $displayThis = $loginTbl;
               } else {
                   $displayThis = "";
-              }
-
+              }              
 
               $displayThis .= "<div id=successMessage>Thank you for using the <b>CHTN Transient Inventory Search</b>.  The application has searched the various CHTN's services and found {$foundBS} biosamples that possibly meet your search criteria.  You can review the list below.  If you are interested in any of these biosamples, select the biosample(s) of interest by clicking the row.  To make a request, once finished with your selection, click the request button. <p>To see more information about the biosample, click the <i class='material-icons'>open_in_new</i> icon.</div>";        
               $displayThis .= "<table border=0 id=bsDisplayTbl>";
